@@ -32,6 +32,7 @@ resource "google_compute_subnetwork" "default" {
 
 resource "google_container_cluster" "default" {
   name = "maks-autopilot-cluster"
+  project = var.project_name
 
   location                 = "asia-southeast2"
   enable_autopilot         = true
@@ -89,12 +90,27 @@ resource "kubernetes_deployment_v1" "default" {
 
       spec {
         container {
-          image = "us-docker.pkg.dev/google-samples/containers/gke/hello-app:2.0"
-          name  = "hello-app-container"
+          image = "rixelanya/maks:0.0.6"
+          name  = "web-app-container"
 
           port {
-            container_port = 8080
+            container_port = 3000
             name           = "web-app-svc"
+          }
+
+          env {
+            name  = "db_host"
+            value = var.db_host
+          }
+
+          env {
+            name  = "db_user"
+            value = var.db_admin
+          }
+
+          env {
+            name  = "db_password"
+            value = var.db_password
           }
 
           security_context {
@@ -185,6 +201,9 @@ resource "kubernetes_persistent_volume_claim" "db_pvc" {
         storage = "5Gi"
       }
     }
+
+    storage_class_name = "standard"
+
   }
 }
 
@@ -234,6 +253,7 @@ resource "kubernetes_stateful_set" "db" {
           volume_mount {
             mount_path = "/var/lib/postgresql/data"
             name       = "postgres-storage"
+            sub_path = "data"
           }
         }
 

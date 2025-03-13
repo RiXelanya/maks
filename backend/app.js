@@ -26,8 +26,12 @@ app.listen(PORT, (error) =>{
     }
 );
 
+app.get('/', (req,res) => {
+    res.send("Hello World")
+})
+
 // GET method route
-app.get('/', async (req, res) => {
+app.get('/customer/find', async (req, res) => {
 
     try {
         const data = await db.any('SELECT * FROM customer WHERE name = $1', req.query.name);
@@ -38,7 +42,7 @@ app.get('/', async (req, res) => {
   })
   
   // POST method route
-  app.post('/', async (req, res) => {
+  app.post('/customer/create', async (req, res) => {
 
     try {
         const data = await db.one('INSERT INTO customer(name) VALUES($1) RETURNING id', req.query.name);
