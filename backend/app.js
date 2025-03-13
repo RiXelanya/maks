@@ -1,6 +1,7 @@
 const express = require('express');
 const pgp = require('pg-promise')();
 require('dotenv').config();
+const RateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +18,14 @@ const cn = {
 };
 
 const db = pgp(cn); // database instance;
+
+const limiter = RateLimit({
+    windowMs: 10 * 60 * 1000, // 15 minutes
+    max: 100, // max 100 requests per windowMs
+  });
+  
+  // apply rate limiter to all requests
+  app.use(limiter);
 
 app.listen(PORT, (error) =>{
     if(!error)
