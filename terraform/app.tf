@@ -256,12 +256,21 @@ resource "kubernetes_stateful_set" "db" {
             sub_path = "data"
           }
         }
+      }
+    }
 
-        volume {
-          name = "postgres-storage"
+    volume_claim_template {
+      metadata {
+        name = "postgres-storage"
+      }
 
-          persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.db_pvc.metadata[0].name
+      spec {
+        access_modes       = ["ReadWriteOnce"]
+        storage_class_name = "standard"
+
+        resources {
+          requests = {
+            storage = "5Gi"
           }
         }
       }
