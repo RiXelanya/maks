@@ -1,7 +1,7 @@
 FROM node:20-alpine
 # ENV NODE_ENV production
-ENV PORT 3000
-WORKDir /app
+ENV PORT=3000
+WORKDIR /app
 COPY package*.json ./
 RUN npm install 
 COPY . .
