@@ -52,7 +52,7 @@ resource "google_container_cluster" "default" {
 
   # Set `deletion_protection` to `true` will ensure that one cannot
   # accidentally delete this instance by use of Terraform.
-  deletion_protection = true
+  deletion_protection = false
 }
 
 provider "kubernetes" {
@@ -198,7 +198,7 @@ resource "kubernetes_persistent_volume_claim" "db_pvc" {
 
     resources {
       requests = {
-        storage = "5Gi"
+        storage = "1Gi"
       }
     }
 
@@ -253,7 +253,21 @@ resource "kubernetes_stateful_set" "db" {
           volume_mount {
             mount_path = "/var/lib/postgresql/data"
             name       = "postgres-storage"
-            sub_path = "data"
+            sub_path   = "data"
+          }
+
+          volume_mount {
+            mount_path = "/docker-entrypoint-initdb.d"
+            name       = "init-script"
+            read_only  = true
+          }
+        }
+
+        volume {
+          name = "init-script"
+
+          config_map {
+          name = kubernetes_config_map.db-init.metadata[0].name
           }
         }
       }
@@ -278,6 +292,7 @@ resource "kubernetes_stateful_set" "db" {
   }
 }
 
+
 resource "kubernetes_service" "postgres" {
   metadata {
     name      = "postgres-service"
@@ -297,6 +312,32 @@ resource "kubernetes_service" "postgres" {
     cluster_ip = "None" # This makes it a headless service for StatefulSet
   }
 }
+
+resource "kubernetes_config_map" "db-init" {
+  metadata {
+    name = "db-init"
+  }
+  data = {
+    "init.sql" = <<EOT
+    -- Create the "customer" database
+    CREATE DATABASE customer;
+
+    -- Connect to the "customer" database
+    \c customer;
+
+    -- Create "customer" table inside the "customer" database
+    CREATE TABLE customer (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL
+    );
+
+    -- insert "John" inside customer table
+
+    INSERT INTO customer (name) VALUES ('John');
+    EOT
+  }
+}
+
 
 
 # Provide time for Service cleanup
