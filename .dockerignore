@@ -1,7 +1,9 @@
 /node_modules
+*.env
 /terraform/.terraform
 terraform/.terraform.lock.hcl
 *.tfstate
 *.tfvars
 *.backup
 *.info
+/terraform
