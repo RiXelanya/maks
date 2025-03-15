@@ -44,7 +44,7 @@ jobs:
         with:
           cosign-release: 'v2.2.4'
       - name: Change Directory
-        run: cd backend
+        run: cd /home/runner/work/maks/maks/backend
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
