@@ -22,7 +22,10 @@ env:
 
 jobs:
   build:
-
+  
+    defaults:
+      run:
+        working-directory: /backend
     runs-on: ubuntu-latest
     permissions:
       contents: read
